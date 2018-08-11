@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <base href="./">
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="library/css/bootstrap.min.css">	
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> 
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script> 		
+        <script src="library/js/bootstrap.min.js"></script>	
+
+
+
+        <script id="carousel-template" type="text/x-handlebars-template">           
+		    {{#carousels}}
+			<div class="item {{ activeStatus }}">
+				<img src="{{ imageUrl }}" >
+				<div class="carousel-caption">
+					<h1> {{ slideName }} </h1>
+					<h3>{{offer}} </h3>
+					<p> {{ description }}  </p>
+				</div>
+			</div>
+			{{/carousels}}
+		</script>
+       
+		<script id="carouselIndicator-template" type="text/x-handlebars-template"> 
+		    {{#carousels}}
+			    <li data-target="#carousel-example-generic" data-slide-to="{{ no }}" class="{{activeStatus}}"></li>
+			{{/carousels}}
+		</script>
+       
+        
+        <script>
+            var caldata = {};
+            Handlebars.registerHelper('printdata', function(obj) {
+            return new Handlebars.SafeString(JSON.stringify(obj));
+            });
+            
+          
+			var source = $("#carousel-template").html();	
+			var template = Handlebars.compile(source);
+            var sourceIndicator = $("#carouselIndicator-template").html();	
+			var templateIndicator = Handlebars.compile(sourceIndicator);
+
+            $('#carouselIndicators').html( );
+             $.ajax('https://jsonblob.com/api/6f40f22c-9d4d-11e8-a9e8-d164fd8d798a', 
+            {
+                dataType: 'json', 
+                success: function (data,status,xhr) {                     
+                    if(status == "success"){                       
+                        var temp = Object.keys(data.carousels)
+                        .map(col => ({ key: col, value: data.carousels[col]}))                        
+                        .sort((a, b) => a.value.price < b.value.price);                        
+                        caldata.carousels = Object.values(temp).map(col => col.value);
+                        $('#carouselIndicators').html(templateIndicator(caldata));
+                        $('#carouselInner').html(template(caldata));
+                    }
+                }
+            });            
+            
+                 
+		</script> 	
+    </head>
+    <body>	
+     
+       
+		<div class="container mycarousel">
+			<div class="row" id="mycarousel">
+				<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+					
+					<ol id="carouselIndicators" class="carousel-indicators"></ol>
+					<div id="carouselInner" class="carousel-inner" role="listbox"></div>
+					<a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+						<span class="glyphicon glyphicon-chevron-left" ></span>
+						<span class="sr-only">Previous</span>
+					</a>
+					<a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+						<span class="glyphicon glyphicon-chevron-right"></span>
+						<span class="sr-only">Next</span>
+					</a>
+				</div>
+			</div>
+		</div>		
+        
+        
+        
+					
+    </body>
+</html>
